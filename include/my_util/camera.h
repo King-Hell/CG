@@ -17,7 +17,7 @@ enum Camera_Movement {
 const float YAW = -90.0f;//偏航角
 const float PITCH = 0.0f;//俯仰角
 const float SPEED = 2.5f;//速度
-const float SENSITIVITY = 0.1f;//鼠标灵敏度
+const float SENSITIVITY = 0.01f;//鼠标灵敏度
 const float ZOOM = 45.0f;//缩放
 
 
@@ -97,6 +97,7 @@ public:
 			Zoom = 45.0f;
 	}
 
+	float getZoom() { return Zoom; }
 private:
 	// 摄像机参数
 	glm::vec3 Position;//位置向量

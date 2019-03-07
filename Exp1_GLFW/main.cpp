@@ -142,17 +142,14 @@ int main() {
 		float timeValue =(float) glfwGetTime();
 		trans = glm::scale(trans, glm::vec3(0.5f, 0.5f, 0.5f));
 		trans = glm::rotate(trans, timeValue, glm::vec3(1.0f, 1.0f, 1.0f));
-		int transformLocation = glGetUniformLocation(shader.getID(), "model");
-		glUniformMatrix4fv(transformLocation, 1, GL_FALSE, glm::value_ptr(trans));
+		shader.setMat4("model", trans);
 		//观察矩阵
 		glm::mat4 view = camera.GetViewMatrix();
-		int viewLocation = glGetUniformLocation(shader.getID(), "view");
-		glUniformMatrix4fv(viewLocation, 1, GL_FALSE, glm::value_ptr(view));
+		shader.setMat4("view", view);
 		//投影矩阵
 		glm::mat4 projection(1.0f);
-		projection = glm::perspective(glm::radians(camera.getZoom()), SCR_WIDTH / SCR_HEIGHT*1.0f, 0.1f, 100.0f);
-		int proLocation = glGetUniformLocation(shader.getID(), "projection");
-		glUniformMatrix4fv(proLocation, 1, GL_FALSE, glm::value_ptr(projection));
+		projection = glm::perspective(glm::radians(camera.getZoom()), SCR_WIDTH / SCR_HEIGHT * 1.0f, 0.1f, 100.0f);
+		shader.setMat4("projection", projection);
 		//绑定纹理
 		glBindTexture(GL_TEXTURE_2D, texture);
 		//绘制三角形

@@ -15,11 +15,10 @@ int main(int argc,char *argv[]) {
 	window.setMouseMoveFun(mouse_move_callback);
 	window.setMouseScrollFun(mouse_scroll_callback);
 	window.setKeyboardFun(key_callback);
-	//设置鼠标指针为手形
-	//window.setCursor(GLFW_CROSSHAIR_CURSOR);
+	glfwSetInputMode(window.getGLFWwindow(), GLFW_STICKY_KEYS, 1);
 	crossCursor=glfwCreateStandardCursor(GLFW_CROSSHAIR_CURSOR);
 	handCursor=glfwCreateStandardCursor(GLFW_HAND_CURSOR);
-	Shader shader("shader.vs", "shader.fs");
+	Shader shader("shaders/shader.vs", "shaders/shader.fs");
 	//VBO VAO
 	glGenVertexArrays(2, VAOs);
 	glGenBuffers(2, VBOs);
@@ -60,15 +59,13 @@ int main(int argc,char *argv[]) {
 		shader.use();
 
 		//观察矩阵
-		glm::mat4 view = camera.GetViewMatrix();
-		shader.setMat4("view", view);
+		// glm::mat4 view = camera.GetViewMatrix();
+		// shader.setMat4("view", view);
 		// //投影矩阵
 		// glm::mat4 projection(1.0f);
 		// projection = glm::perspective(glm::radians(camera.getZoom()), SCR_WIDTH / SCR_HEIGHT * 1.0f, 0.1f, 100.0f);
 		// shader.setMat4("projection", projection);
-		glm::mat4 trans(1.0f);
-		trans = glm::scale(trans, glm::vec3(SCALE, SCALE, 1.0f));
-		shader.setMat4("model", trans);
+		shader.setMat4("model", modelMatrix);
 		glBindVertexArray(VAOs[0]);
 		glDrawArrays(GL_POINTS, 0, GLsizei(keyPoints.size()));
 		glBindVertexArray(VAOs[1]);

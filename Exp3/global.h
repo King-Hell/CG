@@ -37,11 +37,9 @@ int selected=0;
 void IntegerBresenhamline(int x0,int y0,int x1,int y1);
 void drawPixel(int x,int y,int direct);
 void drawKeyPixel(int x,int y);
-int xToScreen(double x);
-int yToScreen(double y);
 void updateBuffer();
 void reDraw(int index,int x,int y);
-glm::mat2 posToScreen(double x,double y);
+glm::ivec2 posToScreen(double x,double y);
 //回调函数
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -49,6 +47,10 @@ void mouse_move_callback(GLFWwindow* window, double xpos, double ypos);
 void mouse_scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void mouse_scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+
+//变换矩阵
+glm::mat4 modelMatrix=glm::scale(glm::mat4(1.0f),glm::vec3(SCALE,SCALE,1.0f));
+glm::mat4 projection=glm::ortho(0.0f,float(SCR_WIDTH),float(SCR_HEIGHT),0.0f,-1.0f,1.0f);
 
 void IntegerBresenhamline(int x0,int y0,int x1,int y1){
 	int direct=0;
@@ -126,25 +128,47 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 {//键盘事件
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window,true);
-    if (key==GLFW_KEY_W && action == GLFW_PRESS)
-		camera.ProcessKeyboard(FORWARD, deltaTime);
-	if (key==GLFW_KEY_S && action == GLFW_PRESS)
-		camera.ProcessKeyboard(BACKWARD, deltaTime);
-	if (key==GLFW_KEY_A && action == GLFW_PRESS)
-		camera.ProcessKeyboard(LEFT, deltaTime);
-	if (key==GLFW_KEY_D && action == GLFW_PRESS)
-		camera.ProcessKeyboard(RIGHT, deltaTime);
-}
+	else{
+		if(action==GLFW_REPEAT){
+			switch(key){
+				case GLFW_KEY_W:
+					modelMatrix=glm::translate(modelMatrix,glm::vec3(0.0f,1.0f,0.0f));
+					break;
+				case GLFW_KEY_S:
+					modelMatrix=glm::translate(modelMatrix,glm::vec3(0.0f,-1.0f,0.0f));	
+					break;
+				case GLFW_KEY_A:
+					modelMatrix=glm::translate(modelMatrix,glm::vec3(-1.0f,0.0f,0.0f));	
+					break;
+				case GLFW_KEY_D:
+					modelMatrix=glm::translate(modelMatrix,glm::vec3(1.0f,0.0f,0.0f));
+					break;
+				case GLFW_KEY_Q:
+					modelMatrix=glm::rotate(modelMatrix,0.1f,glm::vec3(0.0f,0.0f,1.0f));
+					break;
+				case GLFW_KEY_E:
+					modelMatrix=glm::rotate(modelMatrix,-0.1f,glm::vec3(0.0f,0.0f,1.0f));
+					break;
+				case GLFW_KEY_R:
+					modelMatrix=glm::scale(modelMatrix,glm::vec3(1.1f,1.1f,1.0f));
+					break;
+				case GLFW_KEY_F:
+					modelMatrix=glm::scale(modelMatrix,glm::vec3(0.9f,0.9f,1.0f));
+					break;
+			}
+		}
+	}
+}		
 
 void mouse_move_callback(GLFWwindow* window, double xpos, double ypos)
 {//鼠标移动事件
 	//std::cout<<xpos<<","<<ypos<<std::endl;
-	posToScreen(xpos,ypos);
+	glm::ivec2 pos=posToScreen(xpos,ypos);
 	if(pressed && close){
-		reDraw(selected,xToScreen(xpos),yToScreen(ypos));
+		reDraw(selected,pos[0],pos[1]);
 	}else{
 		for(auto i=keyPoints.begin();i!=keyPoints.end();i++){
-			if(xToScreen(xpos)==(*i).x && yToScreen(ypos)==(*i).y){
+			if(pos[0]==(*i).x && pos[1]==(*i).y){
 				glfwSetCursor(window,handCursor);
 				return;
 			}
@@ -164,8 +188,9 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS){
 		double x,y;
         glfwGetCursorPos(window,&x,&y);
-        int x1=xToScreen(x);
-        int y1=yToScreen(y);
+		glm::ivec2 pos=posToScreen(x,y);
+        int x1=pos[0];
+        int y1=pos[1];
 		for(int i=0;i<keyPoints.size();i++){
 			if(keyPoints[i].x==x1 && keyPoints[i].y==y1){
 				if(x1==beginX && y1==beginY && !close)
@@ -201,15 +226,6 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
         
 }
 
-int xToScreen(double x){
-    //鼠标坐标向屏幕坐标转换
-    return (x/SCR_WIDTH*2-1)/SCALE;
-}
-
-int yToScreen(double y){
-    return -1*(y/SCR_HEIGHT*2-1)/SCALE;
-}
-
 void updateBuffer(){
     glBindBuffer(GL_ARRAY_BUFFER,VBOs[0]);
     glBufferSubData(GL_ARRAY_BUFFER, 0, keyPoints.size()*sizeof(mPoint), &keyPoints[0]);
@@ -237,9 +253,13 @@ void reDraw(int index,int x,int y){
 	updateBuffer();
 }
 
-glm::mat2 posToScreen(double x,double y){
-	glm::mat4 projection=glm::ortho(0.0f,float(SCR_WIDTH),0.0f,float(SCR_HEIGHT),-1.0f,1.0f);
-	glm::vec4 pos(float(x),float(y),0.0f,0.0f);
+glm::ivec2 posToScreen(double x,double y){
+	glm::vec4 pos(float(x),float(y),0.0f,1.0f);
 	glm::vec4 result=projection*pos;
-	std::cout<<glm::to_string(result)<<std::endl;
+	result=glm::inverse(modelMatrix)*result;
+	return glm::ivec2(int(result[0]),int(result[1]));
+}
+
+void polyfill(){
+
 }

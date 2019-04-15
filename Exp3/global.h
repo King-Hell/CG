@@ -4,6 +4,7 @@
 #include<glm/gtc/type_ptr.hpp>
 #include<my_util/shader.h>
 #include<vector>
+#include <map>
 #include"mWindow.h"
 #include"mPoint.h"
 #define GLM_ENABLE_EXPERIMENTAL
@@ -53,7 +54,8 @@ glm::mat4 modelMatrix=glm::scale(glm::mat4(1.0f),glm::vec3(SCALE,SCALE,1.0f));
 glm::mat4 projection=glm::ortho(0.0f,float(SCR_WIDTH),float(SCR_HEIGHT),0.0f,-1.0f,1.0f);
 
 void IntegerBresenhamline(int x0,int y0,int x1,int y1){
-	int direct=0;
+	addNet(x0,y0,x1,y1);//增加新边表
+    int direct=0;
 	if(x0>x1){
 		//保证x0总小于x1
 		std::swap(x0,x1);
@@ -261,5 +263,7 @@ glm::ivec2 posToScreen(double x,double y){
 }
 
 void polyfill(){
+    for(){
 
+    }
 }

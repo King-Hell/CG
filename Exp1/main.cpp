@@ -38,11 +38,11 @@ void processKeys(int key, int x, int y) {
 int main(int argc, char** argv)
 
 {
-	glutInit(&argc, argv);//初始化GLUT
-	glutInitDisplayMode(GLUT_DEPTH | GLUT_SINGLE | GLUT_RGBA);//配置GLUT
-	glutInitWindowPosition(100, 100);//窗口位置
-	glutInitWindowSize(320, 320);//窗口大小
-	glutCreateWindow("Test");//窗口标题
+	glutInit(&argc, argv);//鍒濆鍖朑LUT
+	glutInitDisplayMode(GLUT_DEPTH | GLUT_SINGLE | GLUT_RGBA);//閰嶇疆GLUT
+	glutInitWindowPosition(100, 100);//绐楀彛浣嶇疆
+	glutInitWindowSize(320, 320);//绐楀彛澶у皬
+	glutCreateWindow("Test");//绐楀彛鏍囬
 	glutDisplayFunc(renderScene);
 	glClearColor(1, 1, 1, 0);
 	glutSpecialFunc(processKeys);
